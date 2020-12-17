@@ -6,7 +6,7 @@ const resultsTable = document.querySelector("tbody");
 
 function cleanPage() {
   searchResults.innerHTML = ``;
-  searchResultTitle.innerHTML = `Please enter a street name!`;
+  searchResultTitle.innerHTML = `Please enter and select a street name!`;
   resultsTable.innerHTML = ``;
 }
 
@@ -16,26 +16,18 @@ function getStreet(street) {
   )
     .then((response) => response.json())
     .then((street) => {
+      searchResults.innerHTML = ``;
       street.streets.map((name) => {
         searchResults.insertAdjacentHTML(
           "beforeend",
-          `<a href="#">${name.name}</a>`
+          `<a href="#" data-id="${name.key}">${name.name}</a>`
         );
         console.log(name.name);
       });
     });
-  // .then(street => console.log(street.streets));
 }
 
 getStreet();
-
-// function showStreet(street){
-//   street.map(name => {
-//     searchResults.insertAdjacentHTML('beforeend',
-//     `<a href="#">${name.name}</a>`);
-//     // console.log(name.name);
-//   })
-// }
 
 function search(e) {
   e.preventDefault();
@@ -43,9 +35,9 @@ function search(e) {
     getStreet(searchInput.value);
     searchInput.value = "";
 
-    // if (searchInput.value === "") {
-    //   searchResults.innerHTML = "<p>Please enter a street name!</p>";
-    // }
+    if (searchInput.value === "") {
+      searchResults.innerHTML = "<p>Please enter a street name!</p>";
+    }
   }
 }
 
