@@ -15,24 +15,24 @@ function getStreet(street) {
     `https://api.winnipegtransit.com/v3/streets.json?api-key=BGA5REIJoz3BbXP5CXN4&name=${street}&usage=long`
   )
     .then((response) => response.json())
-    .then((street) => {
-      searchResults.innerHTML = "";
-
-      if(Object.keys(street.streets).length === 0){
-        searchResults.innerHTML = "<p>No results for that street!</p>";
-      }
-
-      street.streets.map((name) => {
-        searchResults.insertAdjacentHTML(
-          "beforeend",
-          `<a href="#" data-id="${name.key}">${name.name}</a>`
-        );
-        console.log(name.name);
-      });
-    });
+    .then((street) => displaySearch(street.streets))
 }
 
-getStreet();
+function displaySearch(street){
+  searchResults.innerHTML = "";
+
+  if(Object.keys(street).length === 0){
+    searchResults.innerHTML = "<p>No results for that street!</p>";
+  }
+
+  street.map((name) => {
+    searchResults.insertAdjacentHTML(
+      "beforeend",
+      `<a href="#" data-id="${name.key}">${name.name}</a>`
+    );
+    console.log(name.name);
+  });
+}
 
 function search(e) {
   e.preventDefault();
