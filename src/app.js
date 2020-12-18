@@ -5,9 +5,9 @@ const searchResultTitle = document.getElementById("street-name");
 const resultsTable = document.querySelector("tbody");
 
 function cleanPage() {
-  searchResults.innerHTML = ``;
-  searchResultTitle.innerHTML = `Please enter and select a street name!`;
-  resultsTable.innerHTML = ``;
+  searchResults.innerHTML = "";
+  searchResultTitle.innerHTML = "Please enter and select a street name!";
+  resultsTable.innerHTML = "";
 }
 
 function getStreet(street) {
@@ -16,7 +16,12 @@ function getStreet(street) {
   )
     .then((response) => response.json())
     .then((street) => {
-      searchResults.innerHTML = ``;
+      searchResults.innerHTML = "";
+
+      if(Object.keys(street.streets).length === 0){
+        searchResults.innerHTML = "<p>No results for that street!</p>";
+      }
+
       street.streets.map((name) => {
         searchResults.insertAdjacentHTML(
           "beforeend",
@@ -33,6 +38,7 @@ function search(e) {
   e.preventDefault();
   if (e.target.nodeName === "FORM") {
     getStreet(searchInput.value);
+    
     searchInput.value = "";
 
     if (searchInput.value === "") {
