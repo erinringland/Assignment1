@@ -3,6 +3,7 @@ const searchInput = document.querySelector("input");
 const searchResults = document.querySelector(".streets");
 const searchResultTitle = document.getElementById("street-name");
 const resultsTable = document.querySelector("tbody");
+const resultLink = document.querySelectorAll("a");
 
 function cleanPage() {
   searchResults.innerHTML = "";
@@ -15,13 +16,13 @@ function getStreet(street) {
     `https://api.winnipegtransit.com/v3/streets.json?api-key=BGA5REIJoz3BbXP5CXN4&name=${street}&usage=long`
   )
     .then((response) => response.json())
-    .then((street) => displaySearch(street.streets))
+    .then((street) => displaySearch(street.streets));
 }
 
-function displaySearch(street){
+function displaySearch(street) {
   searchResults.innerHTML = "";
 
-  if(Object.keys(street).length === 0){
+  if (Object.keys(street).length === 0) {
     searchResults.innerHTML = "<p>No results for that street!</p>";
   }
 
@@ -30,7 +31,6 @@ function displaySearch(street){
       "beforeend",
       `<a href="#" data-id="${name.key}">${name.name}</a>`
     );
-    console.log(name.name);
   });
 }
 
@@ -38,7 +38,7 @@ function search(e) {
   e.preventDefault();
   if (e.target.nodeName === "FORM") {
     getStreet(searchInput.value);
-    
+
     searchInput.value = "";
 
     if (searchInput.value === "") {
@@ -48,5 +48,13 @@ function search(e) {
 }
 
 searchForm.addEventListener("submit", search);
+
+searchResults.addEventListener("click",  e => {
+  if(e.target.nodeName === "A"){
+    let streetName = e.target.innerHTML;
+    let streetID = e.target.dataset.id;
+    console.log(streetID, streetName)
+  }
+})
 
 cleanPage();
