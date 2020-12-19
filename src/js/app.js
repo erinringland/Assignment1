@@ -80,6 +80,7 @@ function search(e) {
     getStreet(searchInput.value);
 
     searchInput.value = "";
+    resultsTable.innerHTML = "";
 
     if (searchInput.value === "") {
       searchResults.innerHTML = "<p>Please enter a street name!</p>";
