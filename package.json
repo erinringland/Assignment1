@@ -4,7 +4,7 @@
   "description": "For this assignment, you will be building a bus schedule search by making use of the [Winnipeg Transit Data API](https://api.winnipegtransit.com/). Sign-up for free access [here](https://api.winnipegtransit.com/).",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "gulp"
   },
   "repository": {
     "type": "git",
