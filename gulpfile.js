@@ -20,7 +20,7 @@ function stylesTask() {
 
 function scriptTask() {
   return src("src/js/*.js")
-    .pipe(concat("main.js"))
+    .pipe(concat("app.js"))
     .pipe(sourcemaps.init())
     .pipe(uglify())
     .pipe(sourcemaps.write("."))
