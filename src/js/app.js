@@ -2,7 +2,7 @@ const searchForm = document.querySelector("form");
 const searchInput = document.querySelector("input");
 const searchResults = document.querySelector(".streets");
 const searchResultTitle = document.getElementById("street-name");
-const resultsTable = document.querySelector("tbody");
+const resultsTable = document.querySelector(".main");
 const resultLink = document.querySelectorAll("a");
 
 function cleanPage() {
@@ -21,6 +21,7 @@ function getStreet(street) {
 
 function displaySearch(street) {
   searchResults.innerHTML = "";
+  resultsTable.innerHTML = "";
 
   if (Object.keys(street).length === 0) {
     searchResults.innerHTML = "<p>No results for that street!</p>";
@@ -39,54 +40,61 @@ function chosenStreet(streetID) {
     `https://api.winnipegtransit.com/v3/stops.json?api-key=BGA5REIJoz3BbXP5CXN4&street=${streetID}`
   )
     .then((response) => response.json())
-    .then((stops) => displayStops(stops.stops))
-    // .then((stops) => {
-    //   let info = stops.stops.map(function (name) {
-    //     return fetch(
-    //       `https://api.winnipegtransit.com/v3/stops/${name.key}/schedule.json?api-key=BGA5REIJoz3BbXP5CXN4&max-results-per-route=2`
-    //     ).then((response) => response.json());
-    //   });
-    //   Promise.all(info).then((info) => {
-    //     for (const items of info) {
-    //       for (const route of items["stop-schedule"]["route-schedules"]) {
-    //         console.log(route);
-    //         // displaySchedule(route, items["stop-schedule"].stop);
-    //       }
-    //     }
-    //   });
-    // });
+    .then((stops) => stopsLogic(stops.stops));
 }
 
-function stopsLogic(stops){
-  console.log(stops)
-  let westDir = stops.filter(west => west.direction === 'Westbound')
-  console.log(westDir)
-  let eastDir = stops.filter(east => east.direction === 'Eastbound')
-  console.log(eastDir)
-  let northDir = stops.filter(north => north.direction === 'Northbound')
-  console.log(northDir)
-  let southDir = stops.filter(south => south.direction === 'Southbound')
-  console.log(southDir)
+function stopsLogic(stops) {
+  let primaryDir, secondaryDir;
+  let northDir = stops.filter((north) => north.direction === "Northbound");
+  let southDir = stops.filter((south) => south.direction === "Southbound");
+  let westDir = stops.filter((west) => west.direction === "Westbound");
+  let eastDir = stops.filter((east) => east.direction === "Eastbound");
+
+  if (westDir.length) {
+    primaryDir = westDir;
+  }
+
+  if (eastDir.length) {
+    secondaryDir = eastDir;
+  }
+
+  if (northDir.length) {
+    primaryDir = northDir;
+  }
+
+  if (southDir.length) {
+    secondaryDir = southDir;
+  }
+
+  displayStreetStops(primaryDir, secondaryDir);
 }
 
-// function displaySchedule(route, info) {
-//   searchResultTitle.innerHTML = `You are viewing the stops for ${info.street.name}`;
+function displayStreetStops(primaryDir, secondaryDir) {
+  searchResultTitle.innerHTML = `You are viewing stops on ${primaryDir[0].street.name}. Please select a stop and view the upcoming buses!`;
+  resultsTable.innerHTML = "";
 
-//   route["scheduled-stops"].forEach((row) => {
-//     const date = new Date(row.times.arrival.estimated);
-//     const newDate = date.toLocaleString().slice(12);
-//     resultsTable.insertAdjacentHTML(
-//       "beforeend",
-//       `<tr>
-//         <td>${info.street.name}</td>
-//         <td>${info["cross-street"].name}</td>
-//         <td>${info.direction}</td>
-//         <td>${route.route.number}</td>
-//         <td>${newDate}</td>
-//         </tr>`
-//     );
-//   });
-// }
+  primaryDir.forEach((stop) => {
+    resultsTable.insertAdjacentHTML(
+      "beforeend",
+      `<tr>
+      <td>${stop.name}</td>
+      <td><a href="#" data-id="${stop.key}">${stop.key}</td>
+      <td>${stop.direction}</td>
+    </tr>`
+    );
+  });
+
+  secondaryDir.forEach((stop) => {
+    resultsTable.insertAdjacentHTML(
+      "beforeend",
+      `<tr>
+      <td>${stop.name}</td>
+      <td><a href="#" data-id="${stop.key}">${stop.key}</td>
+      <td>${stop.direction}</td>
+    </tr>`
+    );
+  });
+}
 
 function search(e) {
   e.preventDefault();
