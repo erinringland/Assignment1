@@ -14,14 +14,14 @@ function cleanPage() {
 function search(e) {
   e.preventDefault();
   if (e.target.nodeName === "FORM") {
-    getStreet(searchInput.value);
+    if (searchInput.value === "") {
+      searchResults.innerHTML = "<p>Please enter a street name!</p>";
+    } else {
+      getStreet(searchInput.value);
+    }
 
     searchInput.value = "";
     resultsTable.innerHTML = "";
-
-    if (searchInput.value === "") {
-      searchResults.innerHTML = "<p>Please enter a street name!</p>";
-    }
   }
 }
 
@@ -80,7 +80,15 @@ function stopsLogic(stops) {
     secondaryDir = southDir;
   }
 
-  displayStreetStops(primaryDir, secondaryDir);
+  if (primaryDir === undefined) {
+    noBuses();
+  } else {
+    displayStreetStops(primaryDir, secondaryDir);
+  }
+}
+
+function noBuses() {
+  searchResultTitle.innerHTML = `There are no bus stops! Please pick another street.`;
 }
 
 function displayStreetStops(primaryDir, secondaryDir) {
@@ -123,10 +131,7 @@ function chosenStop(stopID) {
     `https://api.winnipegtransit.com/v3/stops/${stopID}/schedule.json?api-key=BGA5REIJoz3BbXP5CXN4`
   )
     .then((response) => response.json())
-    .then(
-      (stop) => stopScheduleLogic(stop["stop-schedule"])
-      // stopScheduleLogic(stop["stop-schedule"]["route-schedules"])
-    );
+    .then((stop) => stopScheduleLogic(stop["stop-schedule"]));
 }
 
 function stopScheduleLogic(stop) {
@@ -201,31 +206,3 @@ resultsTable.addEventListener("click", function (e) {
 });
 
 cleanPage();
-
-// let number = "2021-01-16T18:05:11";
-// console.log(typeof parseFloat(number));
-// console.log(typeof number);
-
-// let date = new Date("2021-01-16T18:05:11");
-// let arrivalTime = date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
-// console.log(arrivalTime)
-
-// var data = {
-//   questions: ["Q1", "Q2", "Q3"],
-//   details: [
-//     { name: "Alex", values: [27, 2, 14] },
-//     { name: "Bill", values: [40, 94, 18] },
-//     { name: "Gary", values: [64, 32, 45] },
-//   ],
-// };
-
-// var question = "Q1";
-// var qIndex = data.questions.indexOf(question);
-
-// var result = data.details.map(function (e) {
-//   var o = JSON.parse(JSON.stringify(e));
-//   o.single = e.values[qIndex];
-//   return o;
-// });
-
-// console.log(result);
