@@ -2,13 +2,27 @@ const searchForm = document.querySelector("form");
 const searchInput = document.querySelector("input");
 const searchResults = document.querySelector(".streets");
 const searchResultTitle = document.getElementById("street-name");
-const resultsTable = document.querySelector(".main");
+const resultsTable = document.querySelector("tbody");
 const resultLink = document.querySelectorAll("a");
 
 function cleanPage() {
   searchResults.innerHTML = "";
   searchResultTitle.innerHTML = "Please enter and select a street name!";
   resultsTable.innerHTML = "";
+}
+
+function search(e) {
+  e.preventDefault();
+  if (e.target.nodeName === "FORM") {
+    getStreet(searchInput.value);
+
+    searchInput.value = "";
+    resultsTable.innerHTML = "";
+
+    if (searchInput.value === "") {
+      searchResults.innerHTML = "<p>Please enter a street name!</p>";
+    }
+  }
 }
 
 function getStreet(street) {
@@ -74,40 +88,100 @@ function displayStreetStops(primaryDir, secondaryDir) {
   resultsTable.innerHTML = "";
 
   primaryDir.forEach((stop) => {
+    let streetName = stop.name;
+    let stopName = streetName.substr(streetName.indexOf(" ") + 1);
     resultsTable.insertAdjacentHTML(
       "beforeend",
       `<tr>
-      <td>${stop.name}</td>
-      <td><a href="#" data-id="${stop.key}">${stop.key}</td>
+      <td>${stopName}</td>
+      <td></td>
       <td>${stop.direction}</td>
+      <td><a href="#" data-id="${stop.key}">${stop.key}</td>
+      <td></td>
     </tr>`
     );
   });
 
   secondaryDir.forEach((stop) => {
+    let streetName = stop.name;
+    let stopName = streetName.substr(streetName.indexOf(" ") + 1);
     resultsTable.insertAdjacentHTML(
       "beforeend",
       `<tr>
-      <td>${stop.name}</td>
-      <td><a href="#" data-id="${stop.key}">${stop.key}</td>
+      <td>${stopName}</td>
+      <td></td>
       <td>${stop.direction}</td>
+      <td><a href="#" data-id="${stop.key}">${stop.key}</td>
+      <td></td>
     </tr>`
     );
   });
 }
 
-function search(e) {
-  e.preventDefault();
-  if (e.target.nodeName === "FORM") {
-    getStreet(searchInput.value);
+function chosenStop(stopID) {
+  fetch(
+    `https://api.winnipegtransit.com/v3/stops/${stopID}/schedule.json?api-key=BGA5REIJoz3BbXP5CXN4`
+  )
+    .then((response) => response.json())
+    .then(
+      (stop) => stopScheduleLogic(stop["stop-schedule"])
+      // stopScheduleLogic(stop["stop-schedule"]["route-schedules"])
+    );
+}
 
-    searchInput.value = "";
-    resultsTable.innerHTML = "";
+function stopScheduleLogic(stop) {
+  let streetArr = [{ Name: stop.stop.name, Key: stop.stop.key }];
+  let busArr = [];
 
-    if (searchInput.value === "") {
-      searchResults.innerHTML = "<p>Please enter a street name!</p>";
+  for (let element of stop["route-schedules"]) {
+    for (let item of element["scheduled-stops"]) {
+      let crossStreet = stop.stop["cross-street"].name;
+      let direction = stop.stop.direction;
+
+      let date = new Date(item.times.arrival.scheduled);
+
+      let busName = item.variant.name;
+
+      let key = item.variant.key;
+      busKeyArr = key.split("-", 1);
+      let busKey = busKeyArr.toString();
+
+      busArr.push({
+        time: date,
+        bus: busName,
+        key: busKey,
+        direction: direction,
+        crossstreet: crossStreet,
+      });
     }
   }
+
+  busArr.sort(function (a, b) {
+    return new Date(a.time) - new Date(b.time);
+  });
+
+  displayStopSchedule(busArr, streetArr);
+}
+
+function displayStopSchedule(stopTimes, streetInfo) {
+  searchResultTitle.innerHTML = `You are viewing the schedule for Stop #${streetInfo[0].Key} ${streetInfo[0].Name}`;
+  resultsTable.innerHTML = "";
+
+  stopTimes.forEach((bus) => {
+    resultsTable.insertAdjacentHTML(
+      "beforeend",
+      `<tr>
+      <td>${bus.bus}</td>
+      <td>${bus.crossstreet}</td>
+      <td>${bus.direction}</td>
+      <td>${bus.key}</td>
+      <td>${bus.time.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}</td>
+    </tr>`
+    );
+  });
 }
 
 searchForm.addEventListener("submit", search);
@@ -119,4 +193,39 @@ searchResults.addEventListener("click", (e) => {
   }
 });
 
+resultsTable.addEventListener("click", function (e) {
+  if (e.target.nodeName === "A") {
+    let stopID = e.target.dataset.id;
+    chosenStop(stopID);
+  }
+});
+
 cleanPage();
+
+// let number = "2021-01-16T18:05:11";
+// console.log(typeof parseFloat(number));
+// console.log(typeof number);
+
+// let date = new Date("2021-01-16T18:05:11");
+// let arrivalTime = date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+// console.log(arrivalTime)
+
+// var data = {
+//   questions: ["Q1", "Q2", "Q3"],
+//   details: [
+//     { name: "Alex", values: [27, 2, 14] },
+//     { name: "Bill", values: [40, 94, 18] },
+//     { name: "Gary", values: [64, 32, 45] },
+//   ],
+// };
+
+// var question = "Q1";
+// var qIndex = data.questions.indexOf(question);
+
+// var result = data.details.map(function (e) {
+//   var o = JSON.parse(JSON.stringify(e));
+//   o.single = e.values[qIndex];
+//   return o;
+// });
+
+// console.log(result);
