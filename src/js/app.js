@@ -81,13 +81,13 @@ function stopsLogic(stops) {
   }
 
   if (primaryDir === undefined) {
-    noBuses();
+    noBusStops();
   } else {
     displayStreetStops(primaryDir, secondaryDir);
   }
 }
 
-function noBuses() {
+function noBusStops() {
   searchResultTitle.innerHTML = `There are no bus stops! Please pick another street.`;
 }
 
@@ -135,6 +135,7 @@ function chosenStop(stopID) {
 }
 
 function stopScheduleLogic(stop) {
+  console.log(stop);
   let streetArr = [{ Name: stop.stop.name, Key: stop.stop.key }];
   let busArr = [];
 
@@ -165,7 +166,16 @@ function stopScheduleLogic(stop) {
     return new Date(a.time) - new Date(b.time);
   });
 
-  displayStopSchedule(busArr, streetArr);
+  if (stop["route-schedules"].length === 0) {
+    noBuses();
+  } else {
+    displayStopSchedule(busArr, streetArr);
+  }
+}
+
+function noBuses() {
+  searchResultTitle.innerHTML = `There are no buses! Please try another stop or at check back at a later time!`;
+  resultsTable.innerHTML = "";
 }
 
 function displayStopSchedule(stopTimes, streetInfo) {
