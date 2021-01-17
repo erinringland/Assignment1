@@ -27,8 +27,13 @@ function scriptTask() {
     .pipe(dest("dist/js/"));
 }
 
+function iconTask() {
+  return src("src/icon/*").pipe(dest("dist/icon/"));
+}
+
 exports.html = htmlTask;
 exports.styles = stylesTask;
 exports.script = scriptTask;
+exports.script = iconTask;
 
-exports.default = series(htmlTask, stylesTask, scriptTask);
+exports.default = series(htmlTask, stylesTask, scriptTask, iconTask);
