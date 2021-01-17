@@ -30,7 +30,10 @@ function getStreet(street) {
     `https://api.winnipegtransit.com/v3/streets.json?api-key=BGA5REIJoz3BbXP5CXN4&name=${street}&usage=long`
   )
     .then((response) => response.json())
-    .then((street) => displaySearch(street.streets));
+    .then((street) => displaySearch(street.streets))
+    .catch((error) => {
+      searchError();
+    });
 }
 
 function displaySearch(street) {
@@ -38,7 +41,7 @@ function displaySearch(street) {
   resultsTable.innerHTML = "";
 
   if (Object.keys(street).length === 0) {
-    searchResults.innerHTML = "<p>No results for that street!</p>";
+    searchError();
   }
 
   street.map((name) => {
@@ -49,12 +52,19 @@ function displaySearch(street) {
   });
 }
 
+function searchError() {
+  searchResults.innerHTML = "<p>No results for that street!</p>";
+}
+
 function chosenStreet(streetID) {
   fetch(
     `https://api.winnipegtransit.com/v3/stops.json?api-key=BGA5REIJoz3BbXP5CXN4&street=${streetID}`
   )
     .then((response) => response.json())
-    .then((stops) => stopsLogic(stops.stops));
+    .then((stops) => stopsLogic(stops.stops))
+    .catch((error) => {
+      noBusStops();
+    });
 }
 
 function stopsLogic(stops) {
@@ -131,11 +141,13 @@ function chosenStop(stopID) {
     `https://api.winnipegtransit.com/v3/stops/${stopID}/schedule.json?api-key=BGA5REIJoz3BbXP5CXN4`
   )
     .then((response) => response.json())
-    .then((stop) => stopScheduleLogic(stop["stop-schedule"]));
+    .then((stop) => stopScheduleLogic(stop["stop-schedule"]))
+    .catch((error) => {
+      noBuses();
+    });
 }
 
 function stopScheduleLogic(stop) {
-  console.log(stop);
   let streetArr = [{ Name: stop.stop.name, Key: stop.stop.key }];
   let busArr = [];
 
